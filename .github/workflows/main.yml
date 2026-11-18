@@ -1,0 +1,36 @@
+name: Teste e Deploy do App
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  teste-e-deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar arquivos do projeto
+        uses: actions/checkout@v4
+
+      - name: Teste automatizado (verificar se o app existe)
+        run: test -f index.html && echo "Teste aprovado com sucesso!"
+
+      - name: Preparar GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Empacotar site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+      - name: Fazer o Deploy do site
+        id: deployment
+        uses: actions/deploy-pages@v4
